@@ -28,3 +28,14 @@
     - name: printing the ec2_output
       ansible.builtin.debug:
         msg: "{{ ec2_output }}"
+    
+    - name: route53
+      amazon.aws.route53:
+        state: present
+        zone: "{{ dname }}"
+        record: "{{ item.item}}.{{ dname }}""
+        ttl: 1
+        type: A
+        value: "{{ item.instances[0].privateprivate_ip_address }}"
+        overwrite: true
+      loop: "{{ ec2_output.results }}"
