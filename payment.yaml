@@ -1,0 +1,76 @@
+- name: installing payment dipendencies
+  hosts: payment
+  become: yes
+  tasks: 
+    - name: Install Python 3
+      ansible.builtin.dnf:
+        name: "{{ item }}"
+        state: present
+      loop: 
+        - python3 
+        - gcc 
+        - python3-devel
+
+    - name: Create a system user for the application
+      ansible.builtin.user:
+        name: roboshop
+        comment: "roboshop system user"
+        shell: /sbin/nologin  #
+        system: yes               
+        state: present
+
+    - name: delete a directory if it does exist
+      ansible.builtin.file:
+        path: /app 
+        state: absent
+
+    - name: Create a directory if it does not exist
+      ansible.builtin.file:
+        path: /app 
+        state: directory
+
+    - name: delete zip if exist
+      ansible.builtin.file:
+        path: /tmp/catalogue.zip
+        state: absent
+
+    - name: Downloading zip
+      ansible.builtin.get_url:
+        url: https://roboshop-artifacts.s3.amazonaws.com/payment-v3.zip
+        dest: /tmp/payment.zip
+    
+    - name: Extract zip into location
+      ansible.builtin.unarchive:
+        src: /tmp/payment.zip
+        dest: /app
+        remote_src: yes
+
+    # - name: cleaning packages
+    #   ansible.builtin.command: mvn clean package
+    #   args:
+    #     chdir: /app
+
+    # - name: renaming file 
+    #   ansible.builtin.command: mv target/shipping-1.0.jar payment.jar
+    #   args:
+    #     chdir: /app
+
+    - name: installing dipendencies
+      ansibe.builtin.pip:
+        requirements: requirements.txt
+        executable: 3.9
+      args:
+        chdir: /app
+        
+    - name: copying shipping_service
+      ansible.builtin.copy:
+        src: payment.service
+        dest: /etc/systemd/system/payment.service
+
+    - name: starting and enabling
+      ansible.builtin.systemd_service:
+        name: user
+        enabled: yes
+        state: restarted
+        daemon_reload: true
+

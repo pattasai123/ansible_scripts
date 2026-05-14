@@ -1,0 +1,70 @@
+- name: installing cart services
+  hosts: cart
+  become: yes
+  tasks:
+    - name: disableing nodejs
+      ansible.builtin.command: dnf module disable nodejs -y
+    
+    - name: enabling nodejs
+      ansible.builtin.command: dnf module enable nodejs:20 -y
+
+    - name: installing nodejs
+      ansible.builtin.package:
+        name: nodejs
+        state: present
+
+    - name: Create a system user for the application
+      ansible.builtin.user:
+        name: roboshop
+        comment: "roboshop system user"
+        shell: /sbin/nologin  # Prevents interactive login
+        system: yes               # Creates a system account (usually lower UID) # Creates /home/webapp
+        state: present
+
+    - name: delete a directory if it does exist
+      ansible.builtin.file:
+        path: /app 
+        state: absent
+
+    - name: Create a directory if it does not exist
+      ansible.builtin.file:
+        path: /app 
+        state: directory
+
+    - name: deleting zip if exist
+      ansible.builtin.file:
+        path: /tmp/cart.zip
+        state: absent
+
+    - name: Download zip
+      ansible.builtin.get_url:
+        url: https://roboshop-artifacts.s3.amazonaws.com/cart-v3.zip
+        dest: /tmp/cart.zip
+    
+    - name: Extract cart.zip
+      ansible.builtin.unarchive:
+        src: /tmp/cart.zip
+        dest: /app
+        remote_src: yes
+    
+    - name: Install packages based on package.json.
+      community.general.npm:
+        path: /app
+    
+    - name: copying cart.service
+      ansible.builtin.copy:
+        src: cart.service
+        dest: /etc/systemd/system/cart.service
+  
+    # - name: start nad enable mongodb
+    #   ansible.builtin.service:
+    #     name: catalogue
+    #     enabled: yes
+    #     state: started
+
+    - name: demon reload
+      ansible.builtin.systemd_service:
+        name: cart
+        enabled: yes
+        state: restarted
+        daemon_reload: true

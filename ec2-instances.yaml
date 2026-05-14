@@ -29,13 +29,29 @@
       ansible.builtin.debug:
         msg: "{{ ec2_output }}"
     
-    - name: route53
+    - name: Create Route53 private records
       amazon.aws.route53:
         state: present
         zone: "{{ dname }}"
-        record: "{{ item.item}}.{{ dname }}"
+        record: "{{ item.item }}.{{ dname }}"
         ttl: 1
         type: A
         value: "{{ item.instances[0].private_ip_address }}"
         overwrite: true
+
+      when: item.item != "frontend"
+      loop: "{{ ec2_output.results }}"
+
+
+    - name: Create Route53 public record for frontend
+      amazon.aws.route53:
+        state: present
+        zone: "{{ dname }}"
+        record: "{{ item.item }}.{{ dname }}"
+        ttl: 1
+        type: A
+        value: "{{ item.instances[0].public_ip_address }}"
+        overwrite: true
+
+      when: item.item == "frontend"
       loop: "{{ ec2_output.results }}"
