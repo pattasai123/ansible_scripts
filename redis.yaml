@@ -10,7 +10,7 @@
 
     - name: installing redis
       ansible.builtin.package:
-        name: redisdb-org
+        name: redis
         state: present
 
     # - name: staring redisdb
