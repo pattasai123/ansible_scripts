@@ -37,7 +37,7 @@
     - name: Extract fzip file
       ansible.builtin.unarchive:
         src: /tmp/frontend.zip
-        dest: /usr/share/nginx/html
+        dest: /usr/share/nginx/html/
 
     - name: Remove default content
       ansible.builtin.file:
