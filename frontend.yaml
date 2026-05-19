@@ -34,15 +34,15 @@
         url: https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip
         dest: /tmp/frontend.zip
 
-    - name: Extract fzip file
-      ansible.builtin.unarchive:
-        src: /tmp/frontend.zip
-        dest: /usr/share/nginx/html/
-
     - name: Remove default content
       ansible.builtin.file:
         path: /etc/nginx/nginx.conf
         state: absent
+
+    - name: Extract fzip file
+      ansible.builtin.unarchive:
+        src: /tmp/frontend.zip
+        dest: /usr/share/nginx/html/
 
     - name: copy the file
       ansible.builtin.copy:
