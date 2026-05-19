@@ -1,15 +1,12 @@
 ---
 - name: creating instances
-  hosts: local
+  hosts: "{{ item }}"
   connection: local
 
   vars:
     ami_id: "ami-0220d79f3f480ecf5"
     sgroup: "sg-0045e5825324c775b"
-    dname: "bongu.online"
-
-    instances:
-      - mongodb
+    dname: "bongu.online"      
 
   tasks:
     - name: running instances
