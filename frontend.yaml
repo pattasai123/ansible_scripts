@@ -39,10 +39,11 @@
         path: /etc/nginx/nginx.conf
         state: absent
 
-    - name: Extract fzip file
+    - name: Extract zip file
       ansible.builtin.unarchive:
         src: /tmp/frontend.zip
         dest: /usr/share/nginx/html/
+        remote_src: yes
 
     - name: copy the file
       ansible.builtin.copy:
