@@ -66,6 +66,11 @@
     - name: installing mysql
       ansible.builtin.command: dnf install mysql -y 
 
+    - name: install pymysql
+      ansible.builtin.pip:
+        name: PyMySQL
+        executable: pip3
+        
     - name: loading data 
       community.mysql.mysql_db:
         state: import
