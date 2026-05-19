@@ -55,10 +55,11 @@
     #   args:
     #     chdir: /app
 
-    - name: installing dipendencies
-      ansibe.builtin.pip:
+    - name: installing dependencies
+      ansible.builtin.pip:
         requirements: requirements.txt
-        executable: 3.9
+        executable: pip3
+
       args:
         chdir: /app
         
@@ -69,7 +70,7 @@
 
     - name: starting and enabling
       ansible.builtin.systemd_service:
-        name: payment
+        name: PAY
         enabled: yes
         state: restarted
         daemon_reload: true
